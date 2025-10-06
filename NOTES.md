@@ -221,6 +221,7 @@ class ItemRead(ItemBase):
 Manages database connections for each request.
 
 ```
+# database.py
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -281,6 +282,7 @@ def delete_item(db: Session, item_id: int):
 Defines the API routes and connects everything.
 
 ```
+# main.py
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
@@ -326,3 +328,57 @@ def delete(item_id: int, db: Session = Depends(get_db)):
 * **DB Session Dependency**: Provide a database session per request.
 * **CRUD Functions**: Implement logic for create, read, update, delete.
 * **FastAPI Endpoints**: Wire everything together and handle HTTP requests.
+
+### Running the Code & Testing
+
+```
+uv add fastapi 'uvicorn[standard]' sqlalchemy pydantic
+```
+
+```
+uvicorn main:app --reload
+```
+
+Here are cUrl commands to test each of the CRUD operations:
+
+* Create
+
+```
+curl -X POST "http://127.0.0.1:8000/items/" \
+     -H "Content-Type: application/json" \
+     -d '{"name": "Test Item", "description": "This is a test item."}'
+```
+
+* Read all items
+
+```
+curl "http://127.0.0.1:8000/items/"
+```
+
+Or
+
+```
+curl "http://127.0.0.1:8000/items/?skip=0&limit=10"
+```
+
+* Read one item
+
+```
+curl "http://127.0.0.1:8000/items/1"
+```
+
+* Update an item
+
+```
+curl -X PUT "http://127.0.0.1:8000/items/1" \
+     -H "Content-Type: application/json" \
+     -d '{"name": "Updated Item", "description": "Updated description."}'
+```
+
+* Delete an item
+
+```
+curl -X DELETE "http://127.0.0.1:8000/items/1"
+```
+
+**Tip:** The JSON request bodies must match the Pydantic schema (name and description fields).
